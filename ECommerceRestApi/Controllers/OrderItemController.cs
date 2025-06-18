@@ -23,7 +23,6 @@ namespace ECommerceRestApi.Controllers
 
         
         [HttpGet("GetAll")]
-        [Authorize(Roles = "Admin")]
         public IDataResult<List<OrderItem>> GetAll()
         {
             return _orderItemService.GetAll();
@@ -31,7 +30,6 @@ namespace ECommerceRestApi.Controllers
 
         
         [HttpGet("GetAllByUser")]
-        [Authorize(Roles = "User")]
         public IDataResult<List<OrderItem>> GetAllByUser()
         {
             var userId = GetUserIdFromClaims();
@@ -52,7 +50,6 @@ namespace ECommerceRestApi.Controllers
 
        
         [HttpGet("GetById")]
-        [Authorize(Roles = "User")]
         public IDataResult<OrderItem> GetById(Guid id)
         {
             var userId = GetUserIdFromClaims();
@@ -72,7 +69,6 @@ namespace ECommerceRestApi.Controllers
         }
 
         [HttpPost("Add")]
-        [Authorize(Roles = "User")]
         public async Task<IResult> Add(OrderItem entity)
         {
             var userId = GetUserIdFromClaims();
@@ -86,14 +82,12 @@ namespace ECommerceRestApi.Controllers
 
     
         [HttpPost("Update")]
-        [Authorize(Roles = "Admin")]
         public async Task<IResult> Update(OrderItem entity)
         {
             return await _orderItemService.Update(entity);
         }
 
         [HttpPost("Delete")]
-        [Authorize(Roles = "User")]
         public async Task<IResult> Delete(Guid id)
         {
             var userId = GetUserIdFromClaims();

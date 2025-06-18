@@ -18,41 +18,31 @@ namespace ECommerceRestApi.Controllers
             _productService = productService;
         }
 
-       
         [HttpGet("GetAll")]
-        [AllowAnonymous]
         public IDataResult<List<Product>> GetAll()
         {
             return _productService.GetAll();
         }
 
-       
         [HttpGet("GetById")]
-        [AllowAnonymous]
         public IDataResult<Product> GetById(Guid id)
         {
             return _productService.GetById(id);
         }
 
-      
         [HttpPost("Add")]
-        [Authorize(Roles = "Admin")]
         public async Task<IResult> Add(Product entity)
         {
             return await _productService.Add(entity);
         }
 
-       
         [HttpPost("Update")]
-        [Authorize(Roles = "Admin")]
         public async Task<IResult> Update(Product entity)
         {
             return await _productService.Update(entity);
         }
 
-       
         [HttpPost("Delete")]
-        [Authorize(Roles = "Admin")]
         public async Task<IResult> Delete(Guid id)
         {
             return await _productService.Delete(id);

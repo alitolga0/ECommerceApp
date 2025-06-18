@@ -20,14 +20,12 @@ namespace ECommerceRestApi.Controllers
 
         
         [HttpGet("GetAll")]
-        [AllowAnonymous]  
         public IDataResult<List<Category>> GetAll()
         {
             return _categoryService.GetAll();
         }
 
         [HttpGet("GetById")]
-        [AllowAnonymous]
         public IDataResult<Category> GetById(Guid id)
         {
             return _categoryService.GetById(id);
@@ -35,21 +33,18 @@ namespace ECommerceRestApi.Controllers
 
        
         [HttpPost("Add")]
-        [Authorize(Roles = "Admin")]
         public async Task<IResult> Add(Category entity)
         {
             return await _categoryService.Add(entity);
         }
 
         [HttpPost("Update")]
-        [Authorize(Roles = "Admin")]
         public async Task<IResult> Update(Category entity)
         {
             return await _categoryService.Update(entity);
         }
 
         [HttpPost("Delete")]
-        [Authorize(Roles = "Admin")]
         public async Task<IResult> Delete(Guid id)
         {
             return await _categoryService.Delete(id);
