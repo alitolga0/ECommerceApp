@@ -1,22 +1,23 @@
-﻿using ECommerceRestApi.Repository;
-using ECommerceRestApi.Core.Repository;
-using ECommerceRestApi.Service.Concrete;
-using Microsoft.EntityFrameworkCore;
+﻿using ECommerceRestApi.Models;
 using ECommerceRestApi.Services.Abstract;
-using ECommerceRestApi.Services.Concrete;
+using ECommerceRestApi.Service.Concrete;
+using ECommerceRestApi.Repository;
+using ECommerceRestApi.Core.Repository;
 using ECommerceRestApi.Repository.ECommerceRestApi.Repository;
-using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
-using ECommerceRestApi.Models;
+using System.Security.Claims;
+using System.Text.Json.Serialization;
+using ECommerceRestApi.Services.Concrete;
 
 // WebApplication builder
 var builder = WebApplication.CreateBuilder(args);
 
-// Controllers + JSON Ayarları
+// Controllers + JSON Options
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -28,8 +29,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "ECommerce API", Version = "v1" });
-
-    // JWT Bearer Authentication için Swagger ayarları
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -39,7 +38,6 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Description = "JWT Bearer token ile yetkilendirme. 'Bearer {token}' formatında giriniz."
     });
-
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -70,7 +68,7 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 .AddEntityFrameworkStores<MainDbContext>()
 .AddDefaultTokenProviders();
 
-// JWT Ayarları ve Authentication Middleware
+// JWT Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -109,10 +107,18 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// JWT Servisi
+// Authorization Policy - UserType bazlı
+builder.Services.AddAuthorization(options =>
+{
+    // Admin UserType değeri: 1 (örnek)
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireClaim("UserType", "1"));
+});
+
+// JWT Token generator servisini kendine göre implement etmelisin
 builder.Services.AddScoped<JwtTokenGenerator>();
 
-// Repository & Service DI
+// Repository ve Servis Bağımlılıkları
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -120,8 +126,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 builder.Services.AddScoped<ICartItemService, CartItemService>();
-
-// App Pipeline
+builder.Services.AddScoped<IUserService, UserService>();
+// Uygulama pipeline
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

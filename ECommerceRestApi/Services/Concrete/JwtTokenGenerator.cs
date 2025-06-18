@@ -18,20 +18,25 @@ namespace ECommerceRestApi.Services.Concrete
 
         public string GenerateToken(User user)
         {
+            // Kullanıcıya ait claimler
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Burada standart kullanıcı id'si claim'i
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim("name", user.Name),
-                new Claim("surname", user.Surname),
-                new Claim("userType", user.UserType.ToString()),
-                new Claim("userName", user.UserName!)
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Kullanıcı Id'si
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), // Subject
+                new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty), // Email
+                new Claim("name", user.Name ?? string.Empty), // İsim
+                new Claim("surname", user.Surname ?? string.Empty), // Soyisim
+                new Claim("userType", user.UserType.ToString()), // UserType (enum veya int olabilir)
+                new Claim("userName", user.UserName ?? string.Empty) // Kullanıcı adı
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"]!));
+            // Gizli anahtar
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JwtSettings:SecretKey is missing")));
+
+            // İmzalama için credential
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Token oluşturma
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],
                 audience: _config["JwtSettings:Audience"],
@@ -40,6 +45,7 @@ namespace ECommerceRestApi.Services.Concrete
                 signingCredentials: creds
             );
 
+            // Token string olarak dönüyor
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
