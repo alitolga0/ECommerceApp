@@ -14,17 +14,17 @@ using System.Security.Claims;
 using System.Text.Json.Serialization;
 using ECommerceRestApi.Services.Concrete;
 
-// WebApplication builder
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Controllers + JSON Options
+
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     options.JsonSerializerOptions.WriteIndented = true;
 });
 
-// Swagger
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -50,7 +50,6 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-// DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<MainDbContext>(options =>
 {
@@ -58,7 +57,7 @@ builder.Services.AddDbContext<MainDbContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
-// Identity
+
 builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
@@ -107,18 +106,15 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Authorization Policy - UserType bazlı
 builder.Services.AddAuthorization(options =>
 {
-    // Admin UserType değeri: 1 (örnek)
+  
     options.AddPolicy("AdminOnly", policy =>
         policy.RequireClaim("UserType", "1"));
 });
 
-// JWT Token generator servisini kendine göre implement etmelisin
 builder.Services.AddScoped<JwtTokenGenerator>();
 
-// Repository ve Servis Bağımlılıkları
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -127,7 +123,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 builder.Services.AddScoped<ICartItemService, CartItemService>();
 builder.Services.AddScoped<IUserService, UserService>();
-// Uygulama pipeline
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

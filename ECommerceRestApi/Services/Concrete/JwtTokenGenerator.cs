@@ -18,7 +18,7 @@ namespace ECommerceRestApi.Services.Concrete
 
         public string GenerateToken(User user)
         {
-            // Kullanıcıya ait claimler
+            
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), // Kullanıcı Id'si
@@ -30,13 +30,13 @@ namespace ECommerceRestApi.Services.Concrete
                 new Claim("userName", user.UserName ?? string.Empty) // Kullanıcı adı
             };
 
-            // Gizli anahtar
+          
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JwtSettings:SecretKey is missing")));
 
-            // İmzalama için credential
+            
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            // Token oluşturma
+          
             var token = new JwtSecurityToken(
                 issuer: _config["JwtSettings:Issuer"],
                 audience: _config["JwtSettings:Audience"],
@@ -45,7 +45,6 @@ namespace ECommerceRestApi.Services.Concrete
                 signingCredentials: creds
             );
 
-            // Token string olarak dönüyor
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
