@@ -52,6 +52,13 @@ namespace ECommerceRestApi.Controllers
 
             return orderResult;
         }
+        [HttpGet("GetAllByUserWithDetails")]
+        public IDataResult<List<Order>> GetAllByUserWithDetails()
+        {
+            var userId = GetUserIdFromClaims();
+            var orders = _orderService.GetAllByUserWithDetails(userId);
+            return new SuccessDataResult<List<Order>>(orders, "Siparişler başarıyla getirildi.");
+        }
 
         [HttpPost("Add")]
         public async Task<IResult> Add(Order entity)

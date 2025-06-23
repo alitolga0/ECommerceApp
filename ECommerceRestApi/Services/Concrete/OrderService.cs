@@ -2,6 +2,7 @@
 using ECommerceRestApi.Core.Utilities.Result;
 using ECommerceRestApi.Models;
 using ECommerceRestApi.Services.Abstract;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -39,7 +40,19 @@ namespace ECommerceRestApi.Services.Concrete
             return new SuccessResult("sipariş başarıyla eklendi");
         }
 
-  
+        public List<Order> GetAllByUserWithDetails(Guid userId)
+        {
+
+            var orders = _repository.GetAllWithNavigation(
+                o => o.UserId == userId,
+                "OrderItems",
+                "OrderItems.Product",
+                "OrderItems.Product.Category"
+            );
+
+            return orders;
+        }
+
 
         public async Task<IResult> Delete(Guid id)
         {
@@ -50,8 +63,12 @@ namespace ECommerceRestApi.Services.Concrete
 
         public IDataResult<List<Order>> GetAll(Expression<Func<Order, bool>> filter = null)
         {
-            var data = _repository.GetAll(filter);
-            return new SuccessDataResult<List<Order>>(data,"siparişler başarıyla getirildi");
+            var data = _repository.GetAllWithNavigation(
+          filter,
+          "OrderItems",
+          "OrderItems.Product"
+      );
+            return new SuccessDataResult<List<Order>>(data, "siparişler başarıyla getirildi");
         }
 
         public IDataResult<Order> GetById(Guid id)
